@@ -1,5 +1,4 @@
 from django.urls import path, include
-from django.shortcuts import redirect
 from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 from books.views import BookViewSet, AuthorViewSet
 from members.views import MemberViewSet, BorrowRecordViewSet
@@ -7,9 +6,9 @@ from members.views import MemberViewSet, BorrowRecordViewSet
 # Main routers
 router = DefaultRouter()
 router.register(r'authors', AuthorViewSet, basename='authors')
-router.register(r'books', BookViewSet, basename='books')
 router.register(r'members', MemberViewSet, basename='members')
-router.register(r'records', BorrowRecordViewSet, basename='records')
+router.register(r'records', BorrowRecordViewSet, basename='borrowrecords')
+router.register(r'books', BookViewSet, basename='books')
 
 # Nested routers
 author_books_router = NestedDefaultRouter(router, r'authors', lookup='author')
