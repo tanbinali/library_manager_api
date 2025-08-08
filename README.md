@@ -145,6 +145,6 @@ This project is licensed under the MIT License.
 ## Contact
 
 MD. Tanbin Ali  
-Email: [tanbin@gmail.com](mailto:tanbin@gmail.com)  
+Email: [tanbinali@gmail.com](mailto:tanbin@gmail.com)  
 GitHub: [https://github.com/tanbinali](https://github.com/tanbinali)
 
