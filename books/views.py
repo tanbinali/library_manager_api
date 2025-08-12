@@ -3,6 +3,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.utils import timezone
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from books.models import Book
 from books.serializers import BookSerializer
@@ -55,6 +57,67 @@ class BookViewSet(viewsets.ModelViewSet):
             return BookReturnSerializer
         return super().get_serializer_class()
 
+    @swagger_auto_schema(
+        operation_summary="List all books",
+        operation_description="Retrieve a list of all books with author details.",
+        responses={200: BookSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Retrieve a book",
+        operation_description="Retrieve details of a specific book by ID.",
+        responses={200: BookSerializer()},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create a new book",
+        operation_description="Add a new book to the library (librarians/admins only).",
+        request_body=BookSerializer,
+        responses={201: BookSerializer()},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update a book",
+        operation_description="Fully update a book record (librarians/admins only).",
+        request_body=BookSerializer,
+        responses={200: BookSerializer()},
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partially update a book",
+        operation_description="Partially update a book record (librarians/admins only).",
+        request_body=BookSerializer,
+        responses={200: BookSerializer()},
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete a book",
+        operation_description="Delete a book from the library (librarians/admins only).",
+        responses={204: 'No Content'},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        method='post',
+        request_body=BookBorrowSerializer,
+        operation_summary="Borrow a book",
+        operation_description="Allows members to borrow a book by its title. Book must be available.",
+        responses={
+            201: openapi.Response(description="Successfully borrowed the book."),
+            400: "Book not available or invalid title.",
+        },
+    )
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, IsMemberGroupOnly])
     def borrow(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -74,6 +137,16 @@ class BookViewSet(viewsets.ModelViewSet):
 
         return Response({"detail": f"You have borrowed '{book.title}'."}, status=status.HTTP_201_CREATED)
 
+    @swagger_auto_schema(
+        method='post',
+        request_body=BookReturnSerializer,
+        operation_summary="Return a book",
+        operation_description="Allows members to return a previously borrowed book by title.",
+        responses={
+            200: openapi.Response(description="Successfully returned the book."),
+            400: "No active borrow record found for this book.",
+        },
+    )
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, IsMemberGroupOnly])
     def return_book(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -110,12 +183,60 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
-    # Combined permission so that:
-    # - ReadOnly for authenticated users
-    # - Write allowed only for Librarian group or Admin users
     def get_permissions(self):
         from rest_framework.permissions import SAFE_METHODS
 
         if self.request.method in SAFE_METHODS:
             return [IsAuthenticated()]
         return [IsLibrarianGroupOrReadOnly(), IsAdminUser()]
+
+    @swagger_auto_schema(
+        operation_summary="List authors",
+        operation_description="Retrieve a list of all authors.",
+        responses={200: AuthorSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Retrieve author",
+        operation_description="Get details of a specific author by ID.",
+        responses={200: AuthorSerializer()},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Create author",
+        operation_description="Add a new author (librarians/admins only).",
+        request_body=AuthorSerializer,
+        responses={201: AuthorSerializer()},
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Update author",
+        operation_description="Fully update an author (librarians/admins only).",
+        request_body=AuthorSerializer,
+        responses={200: AuthorSerializer()},
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Partial update author",
+        operation_description="Partially update an author (librarians/admins only).",
+        request_body=AuthorSerializer,
+        responses={200: AuthorSerializer()},
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_summary="Delete author",
+        operation_description="Delete an author (librarians/admins only).",
+        responses={204: 'No Content'},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
