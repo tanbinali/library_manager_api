@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -48,7 +48,18 @@ class BookViewSet(viewsets.ModelViewSet):
     """
     queryset = Book.objects.select_related('author').all()
     serializer_class = BookSerializer
-    permission_classes = [IsLibrarianOrAdminOrReadOnly]
+    
+    def get_permissions(self):
+        """
+        Assign different permissions depending on the action.
+        """
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AllowAny]
+        elif self.action in ['borrow', 'return_book']:
+            permission_classes = [IsAuthenticated, IsMemberGroupOnly]
+        else:
+            permission_classes = [IsLibrarianOrAdminOrReadOnly]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
         if self.action == 'borrow':
