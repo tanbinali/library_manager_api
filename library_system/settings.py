@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'djoser',
     'drf_yasg',
     'django_filters',
+    'corsheaders',
     'debug_toolbar',
     'api',
     'books',
@@ -119,6 +120,10 @@ DATABASES = {
         'HOST': config('host'),
         'PORT': config('port')
     }}
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]
 
 INTERNAL_IPS = [
     '127.0.0.1',
