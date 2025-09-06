@@ -66,13 +66,15 @@ class MemberCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
 
     def create(self, validated_data):
-        user = User.objects.create_user(
+        user = User.objects.create(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
-            password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', '')
+            last_name=validated_data.get('last_name', ''),
+            is_active=False
         )
+        user.set_password(validated_data['password'])
+        user.save()
         return user
 
 
