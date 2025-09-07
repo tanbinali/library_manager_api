@@ -127,6 +127,7 @@ DATABASES = {
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    'https://library-manager-client-alpha.vercel.app',
 ]
 
 INTERNAL_IPS = [
